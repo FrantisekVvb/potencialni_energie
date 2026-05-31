@@ -1,7 +1,7 @@
 {
-  "name": "pad-koule",
+  "name": "potencialni_energie",
   "version": "1.0.0",
-  "description": "Interaktivní simulace pádu koule a předmětů — energie dopadu",
+  "description": "Interaktivní simulace potenciální a kinetické energie při pádu těles",
   "private": true,
   "scripts": {
     "dev": "live-server . --port=8766 --open=/index.html --wait=300"

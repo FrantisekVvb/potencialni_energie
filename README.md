@@ -1,6 +1,6 @@
-# Pád koule — energie dopadu
+# Potenciální energie
 
-Interaktivní simulace volného pádu pro výuku fyziky. Porovnáváte dopad energie při různé gravitaci, hmotnosti a tvaru tělesa.
+Interaktivní simulace volného pádu pro výuku fyziky. Porovnáváte energii dopadu (potenciální → kinetická) při různé gravitaci, hmotnosti a tvaru tělesa.
 
 ## Funkce
 
@@ -24,7 +24,7 @@ Aplikace běží na [http://127.0.0.1:8766/index.html](http://127.0.0.1:8766/ind
 ## Struktura
 
 ```
-pad_koule/
+potencialni_energie/
 ├── index.html      # aplikace (HTML, CSS, JS)
 ├── assets/         # grafika scény a předmětů
 ├── package.json
