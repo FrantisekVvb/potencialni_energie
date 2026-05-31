@@ -52,8 +52,9 @@
     button, input, label { font-family: inherit; }
 
     .app {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: min(300px, 100%) minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr);
       gap: clamp(10px, 1.8vw, 20px);
       padding: clamp(8px, 1.2vw, 14px);
       height: 100dvh;
@@ -62,14 +63,24 @@
       margin: 0 auto;
     }
 
+    @media (max-width: 680px) {
+      .app {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto minmax(0, 1fr);
+      }
+
+      .setup-panel {
+        max-height: min(42dvh, calc(100dvh - 240px));
+      }
+    }
+
     .setup-panel {
-      flex: 0 0 min(300px, 100%);
       padding: 18px;
       border-radius: 22px;
       border: 1px solid var(--border);
       background: var(--panel);
-      align-self: flex-start;
-      max-height: calc(100dvh - 2 * clamp(8px, 1.2vw, 14px));
+      min-height: 0;
+      max-height: 100%;
       overflow: auto;
     }
 
@@ -268,14 +279,12 @@
     }
 
     .viz-column {
-      flex: 1 1 380px;
       min-width: 0;
+      min-height: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      max-height: calc(100dvh - 2 * clamp(8px, 1.2vw, 14px));
-      height: 100%;
-      overflow: auto;
+      overflow: hidden;
       background: transparent;
     }
 
@@ -286,22 +295,38 @@
       background: transparent;
     }
 
+    .viz-fit {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .viz-scale-box {
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
     .viz-presentation {
       display: flex;
       align-items: center;
       gap: clamp(14px, 3.5vw, 28px);
-      max-height: 100%;
-      min-height: 0;
+      transform-origin: 0 0;
     }
 
     .device-stage {
       --grass-scale: 0.8;
       /* Spodek trávníku (y≈159) → zelená linie (y≈145.4) v SVG trávníku */
       --grass-ground-lift: calc(13.597 / 345 * 100% * var(--grass-scale));
-      flex: 0 1 auto;
+      flex: 0 0 auto;
       position: relative;
-      width: min(345px, 100%);
-      max-height: 100%;
+      width: 345px;
+      max-width: 100%;
       min-height: 0;
     }
 
@@ -309,7 +334,6 @@
       position: relative;
       z-index: 1;
       width: 100%;
-      max-height: calc(100% - var(--grass-ground-lift));
       min-height: 0;
       margin-bottom: var(--grass-ground-lift);
       overflow: hidden;
@@ -355,6 +379,25 @@
 
     .scene-svg.idle-ball #ball .ball-body,
     .scene-svg.idle-ball #ballObject { cursor: ns-resize; }
+
+    .scene-height-label {
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .scene-height-label text {
+      font-size: 13px;
+      font-weight: 700;
+      fill: #171923;
+    }
+
+    body.env-moon .scene-height-label text,
+    body.env-weightless .scene-height-label text {
+      fill: #fff;
+      stroke: rgba(0, 0, 0, 0.45);
+      stroke-width: 3px;
+      paint-order: stroke fill;
+    }
 
     .ball-picker {
       display: grid;
@@ -448,12 +491,13 @@
         <div class="row">
           <label class="row-label" id="heightSliderLabel" for="sliderHeight">Výška koule</label>
           <input type="range" id="sliderHeight" min="0" max="2" step="0.01" value="1" />
-          <span class="row-value" id="valHeight">—</span>
         </div>
       </div>
     </aside>
 
     <div class="viz-column" aria-label="Simulace">
+      <div class="viz-fit" id="vizFit">
+        <div class="viz-scale-box" id="vizScaleBox">
       <div class="viz-presentation env-earth" id="vizPresentation">
         <div class="device-stage env-earth" id="deviceStage">
           <div class="scene-wrap">
@@ -490,6 +534,9 @@
               <path class="ball-stripe" d="M56 8.5C49.8279 8.5 43.7162 9.71569 38.0139 12.0777C32.3116 14.4396 27.1303 17.9016 22.766 22.266C18.4016 26.6303 14.9396 31.8116 12.5777 37.5139C10.2157 43.2162 9 49.3279 9 55.5" stroke="white" stroke-width="4" stroke-linecap="round" transform="translate(-55.5 -55.5)"/>
             </g>
             <g id="ballObject" class="ball-visual is-hidden"></g>
+          </g>
+          <g id="objectHeightLabel" class="scene-height-label" aria-hidden="true">
+            <text id="objectHeightText" x="0" y="0">—</text>
           </g>
         </svg>
           </div>
@@ -543,6 +590,8 @@
             alt="Stav beztíže, g = 0 N/kg"
             decoding="async"
           />
+        </div>
+      </div>
         </div>
       </div>
     </div>
@@ -717,11 +766,13 @@
   const envToggleEl = document.getElementById("envToggle");
   const deviceStageEl = document.getElementById("deviceStage");
   const vizPresentationEl = document.getElementById("vizPresentation");
+  const vizFitEl = document.getElementById("vizFit");
+  const vizScaleBoxEl = document.getElementById("vizScaleBox");
+  const objectHeightTextEl = document.getElementById("objectHeightText");
   const valGravity = document.getElementById("valGravity");
   const btnRun = document.getElementById("btnRun");
   const btnReset = document.getElementById("btnReset");
   const sliderHeight = document.getElementById("sliderHeight");
-  const valHeight = document.getElementById("valHeight");
   // Pozn.: výšku elipsy už nezobrazujeme, proto tu není readHeight.
 
   const state = {
@@ -875,6 +926,41 @@
     vizPresentationEl.classList.add(envClass);
     valGravity.textContent = `${formatNum(getGravity(), 1)} N/kg`;
     renderEnvToggle();
+    fitVizToScreen();
+  }
+
+  function fitVizToScreen() {
+    if (!vizFitEl || !vizScaleBoxEl || !vizPresentationEl) return;
+
+    const availW = vizFitEl.clientWidth;
+    const availH = vizFitEl.clientHeight;
+    if (availW <= 0 || availH <= 0) return;
+
+    vizPresentationEl.style.transform = "none";
+    vizScaleBoxEl.style.width = "";
+    vizScaleBoxEl.style.height = "";
+
+    const naturalW = vizPresentationEl.offsetWidth;
+    const naturalH = vizPresentationEl.offsetHeight;
+    if (naturalW <= 0 || naturalH <= 0) return;
+
+    const scale = Math.min(availW / naturalW, availH / naturalH, 1);
+    vizScaleBoxEl.style.width = `${naturalW * scale}px`;
+    vizScaleBoxEl.style.height = `${naturalH * scale}px`;
+    vizPresentationEl.style.transform = `scale(${scale})`;
+  }
+
+  let fitVizFrame = 0;
+  function scheduleFitVizToScreen() {
+    cancelAnimationFrame(fitVizFrame);
+    fitVizFrame = requestAnimationFrame(fitVizToScreen);
+  }
+
+  if (vizFitEl) {
+    new ResizeObserver(scheduleFitVizToScreen).observe(vizFitEl);
+    const appEl = document.querySelector(".app");
+    if (appEl) new ResizeObserver(scheduleFitVizToScreen).observe(appEl);
+    window.addEventListener("load", scheduleFitVizToScreen);
   }
 
   function renderItemPicker() {
@@ -1095,8 +1181,27 @@
     }
   }
 
+  function objectHalfWidthPx() {
+    const preset = getCurrentPreset();
+    if (state.bodyKind === "objects") {
+      return state.radius * (preset.viewW / preset.viewH);
+    }
+    return state.radius;
+  }
+
+  function updateObjectHeightLabel() {
+    if (!objectHeightTextEl) return;
+
+    const heightM = ballYToHeightM(state.ballY, state.radius);
+    objectHeightTextEl.textContent = `${formatNum(heightM, 2)} m`;
+    objectHeightTextEl.setAttribute("x", String(BALL_X + objectHalfWidthPx() + 10));
+    objectHeightTextEl.setAttribute("y", String(state.ballY));
+    objectHeightTextEl.setAttribute("text-anchor", "start");
+    objectHeightTextEl.setAttribute("dominant-baseline", "middle");
+  }
+
   function updateLabels() {
-    valHeight.textContent = `${formatNum(ballYToHeightM(state.ballY, state.radius), 2)} m`;
+    updateObjectHeightLabel();
     const preset = getCurrentPreset();
     setBodyVisualKind();
     if (state.bodyKind === "objects") {
@@ -1358,8 +1463,12 @@
   applyEnvironmentUI();
   applyBodyKindUI();
   objectSpritesReady
-    .then(() => resetSimulation())
+    .then(() => {
+      resetSimulation();
+      scheduleFitVizToScreen();
+    })
     .catch((err) => console.error(err));
+  scheduleFitVizToScreen();
 })();
   </script>
 </body>
