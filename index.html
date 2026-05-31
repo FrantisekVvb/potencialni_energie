@@ -59,7 +59,7 @@
       padding: clamp(8px, 1.2vw, 14px);
       height: 100dvh;
       overflow: hidden;
-      max-width: 960px;
+      max-width: 1020px;
       margin: 0 auto;
     }
 
@@ -215,10 +215,10 @@
     .ground-art {
       position: absolute;
       bottom: 0;
-      left: 50%;
+      left: calc(var(--scene-label-pad) + var(--scene-content-width) * 0.5);
       z-index: 0;
       display: block;
-      width: calc(667 / 345 * 100% * var(--grass-scale));
+      width: calc(667 / 345 * var(--scene-content-width) * var(--grass-scale));
       max-width: none;
       height: auto;
       transform: translateX(-50%);
@@ -320,12 +320,15 @@
     }
 
     .device-stage {
+      --scene-content-width: 345px;
+      --scene-label-pad: 55px;
+      --scene-stage-width: calc(var(--scene-content-width) + var(--scene-label-pad));
       --grass-scale: 0.8;
       /* Spodek trávníku (y≈159) → zelená linie (y≈145.4) v SVG trávníku */
-      --grass-ground-lift: calc(13.597 / 345 * 100% * var(--grass-scale));
+      --grass-ground-lift: calc(13.597 / 345 * var(--scene-content-width) * var(--grass-scale));
       flex: 0 0 auto;
       position: relative;
-      width: 345px;
+      width: var(--scene-stage-width);
       max-width: 100%;
       min-height: 0;
     }
@@ -336,10 +339,10 @@
       width: 100%;
       min-height: 0;
       margin-bottom: var(--grass-ground-lift);
-      overflow: hidden;
+      overflow: visible;
       display: flex;
       flex-direction: column;
-      aspect-ratio: 345 / 750;
+      aspect-ratio: 400 / 750;
     }
 
     /* Pevná šířka slotu = nejširší popisek; přístroj se při přepnutí neposune. */
@@ -386,7 +389,7 @@
     }
 
     .scene-height-label text {
-      font-size: 13px;
+      font-size: 18px;
       font-weight: 700;
       fill: #171923;
     }
@@ -395,7 +398,7 @@
     body.env-weightless .scene-height-label text {
       fill: #fff;
       stroke: rgba(0, 0, 0, 0.45);
-      stroke-width: 3px;
+      stroke-width: 4px;
       paint-order: stroke fill;
     }
 
@@ -504,7 +507,7 @@
         <svg
           id="scene"
           class="scene-svg idle-ball"
-          viewBox="0 0 345 750"
+          viewBox="-55 0 400 750"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           aria-label="Potenciální energie — nádrž Archimed"
@@ -1189,14 +1192,20 @@
     return state.radius;
   }
 
+  function formatHeightDisplay(heightM) {
+    const rounded = Math.round(heightM * 100) / 100;
+    if (rounded <= 0) return "0 m";
+    return `${formatNum(rounded, 2)} m`;
+  }
+
   function updateObjectHeightLabel() {
     if (!objectHeightTextEl) return;
 
     const heightM = ballYToHeightM(state.ballY, state.radius);
-    objectHeightTextEl.textContent = `${formatNum(heightM, 2)} m`;
-    objectHeightTextEl.setAttribute("x", String(BALL_X + objectHalfWidthPx() + 10));
+    objectHeightTextEl.textContent = formatHeightDisplay(heightM);
+    objectHeightTextEl.setAttribute("x", String(BALL_X - objectHalfWidthPx() - 10));
     objectHeightTextEl.setAttribute("y", String(state.ballY));
-    objectHeightTextEl.setAttribute("text-anchor", "start");
+    objectHeightTextEl.setAttribute("text-anchor", "end");
     objectHeightTextEl.setAttribute("dominant-baseline", "middle");
   }
 
