@@ -21,6 +21,12 @@ npm run dev
 
 Aplikace běží na [http://127.0.0.1:8766/index.html](http://127.0.0.1:8766/index.html).
 
+## Online verze
+
+Po pushi na `main` se aplikace automaticky nasadí na GitHub Pages:
+
+[https://frantisekvvb.github.io/potencialni_energie/](https://frantisekvvb.github.io/potencialni_energie/)
+
 ## Struktura
 
 ```
