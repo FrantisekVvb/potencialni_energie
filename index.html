@@ -34,13 +34,48 @@
       color: var(--text);
     }
 
+    .space-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0;
+      background: #020208 url("assets/space-stars.svg") center / cover no-repeat;
+      transition: opacity 320ms ease;
+    }
+
+    body.env-moon .space-backdrop,
+    body.env-weightless .space-backdrop {
+      opacity: 1;
+    }
+
+    .moon-surface {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+      pointer-events: none;
+      line-height: 0;
+      opacity: 0;
+      transition: opacity 320ms ease;
+    }
+
+    .moon-surface img {
+      display: block;
+      width: min(52vw, 480px);
+      margin: 0 auto;
+      height: auto;
+      transform: translateX(100px);
+    }
+
+    body.env-moon .moon-surface {
+      opacity: 1;
+    }
+
     body.env-moon,
     body.env-weightless {
-      background-color: #0b0c18;
-      background-image: url("assets/vesmir-pozadi-plne.svg");
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
+      background-color: #020208;
     }
 
     body.env-moon .setup-panel,
@@ -52,6 +87,8 @@
     button, input, label { font-family: inherit; }
 
     .app {
+      position: relative;
+      z-index: 1;
       display: grid;
       grid-template-columns: min(300px, 100%) minmax(0, 1fr);
       grid-template-rows: minmax(0, 1fr);
@@ -230,26 +267,14 @@
       opacity: 0.72;
     }
 
-    .ground-moon,
     .ground-weightless {
       display: none;
-    }
-
-    .ground-moon {
-      opacity: 0.78;
-    }
-
-    .ground-weightless {
       opacity: 0.85;
     }
 
     .device-stage.env-moon .ground-grass,
     .device-stage.env-weightless .ground-grass {
       display: none;
-    }
-
-    .device-stage.env-moon .ground-moon {
-      display: block;
     }
 
     .device-stage.env-weightless .ground-weightless {
@@ -461,6 +486,10 @@
   </style>
 </head>
 <body>
+  <div id="space-backdrop" class="space-backdrop" aria-hidden="true"></div>
+  <div id="moon-surface" class="moon-surface" aria-hidden="true">
+    <img src="assets/mesic-povrch.svg" alt="" width="535" height="533" decoding="async" />
+  </div>
   <div class="app">
     <aside class="setup-panel" aria-label="Nastavení">
       <a href="../fyzikalnisimulace/index.html" class="hub-back-to-sims">← Přehled simulací</a>
@@ -546,14 +575,6 @@
           <img
             class="ground-art ground-grass"
             src="assets/travnik.svg"
-            width="667"
-            height="159"
-            alt=""
-            decoding="async"
-          />
-          <img
-            class="ground-art ground-moon"
-            src="assets/mesic-povrch.svg"
             width="667"
             height="159"
             alt=""
