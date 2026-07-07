@@ -255,7 +255,7 @@
       left: calc(var(--scene-label-pad) + var(--scene-content-width) * 0.5);
       z-index: 0;
       display: block;
-      width: calc(667 / 345 * var(--scene-content-width) * var(--grass-scale));
+      width: calc(990 / 345 * var(--scene-content-width) * var(--grass-scale));
       max-width: none;
       height: auto;
       transform: translateX(-50%);
@@ -264,7 +264,7 @@
     }
 
     .ground-grass {
-      opacity: 0.72;
+      opacity: 1;
     }
 
     .ground-weightless {
@@ -348,9 +348,9 @@
       --scene-content-width: 345px;
       --scene-label-pad: 55px;
       --scene-stage-width: calc(var(--scene-content-width) + var(--scene-label-pad));
-      --grass-scale: 0.8;
-      /* Spodek trávníku (y≈159) → zelená linie (y≈145.4) v SVG trávníku */
-      --grass-ground-lift: calc(13.597 / 345 * var(--scene-content-width) * var(--grass-scale));
+      --grass-scale: 0.56;
+      /* Spodek povrchu (y≈415) → horní hrana zeleného valu (y≈332.5) */
+      --grass-ground-lift: calc(82.529 / 345 * var(--scene-content-width) * var(--grass-scale));
       flex: 0 0 auto;
       position: relative;
       width: var(--scene-stage-width);
@@ -575,8 +575,8 @@
           <img
             class="ground-art ground-grass"
             src="assets/travnik.svg"
-            width="667"
-            height="159"
+            width="990"
+            height="415"
             alt=""
             decoding="async"
           />
